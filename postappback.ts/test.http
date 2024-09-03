@@ -1,0 +1,73 @@
+###
+# @name login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+###
+
+GET http://localhost:3000/users
+Content-Type: application/json
+Authorization: Bearer {{ login.response.body.token }}
+
+###
+POST http://localhost:3000/users
+Content-Type: application/json
+Authorization: Bearer {{ login.response.body.token }}
+
+{
+  "username": "johndoe",
+  "password": "12345678",
+  "role": "professor"
+}
+
+###
+
+GET http://localhost:3000/posts
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/posts/search?q=inventore
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/posts/admin
+Content-Type: application/json
+Authorization: Bearer {{ login.response.body.token }}
+
+###
+# @name createPost
+POST http://localhost:3000/posts
+Content-Type: application/json
+Authorization: Bearer {{ login.response.body.token }}
+
+{
+  "title": "qualquer coisa 4",
+  "content": "lorem ipsum"
+}
+
+###
+@id = {{ createPost.response.body.id }}
+GET http://localhost:3000/posts/{{ id }}
+Content-Type: application/json
+
+###
+@id = {{ createPost.response.body.id }}
+PATCH http://localhost:3000/posts/{{ id }}
+Content-Type: application/json
+Authorization: Bearer {{ login.response.body.token }}
+
+{
+  "status": "published"
+}
+
+###
+@id = {{ createPost.response.body.id }}
+DELETE http://localhost:3000/posts/{{ id }}
+Content-Type: application/json
