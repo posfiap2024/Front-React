@@ -1,17 +1,13 @@
 FROM node:lts
 
+WORKDIR /usr/src/app
 
-ENV CI=true
-ENV PORT=3000
+COPY package*.json ./
 
-WORKDIR /home/node/app
+RUN npm install
 
-COPY package*.json /home/node/app/
+COPY . .
 
-RUN npm ci
+EXPOSE 3000
 
-COPY . /home/node/app/
-
-RUN npm run build
-
-CMD ["npm", "start", "dev"]
+CMD ["npm", "start"]
