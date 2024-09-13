@@ -1,16 +1,13 @@
 FROM node:lts
 
-ARG NODE_ENV=production
-ENV NODE_ENV $NODE_ENV
+WORKDIR /usr/src/app
 
-WORKDIR /home/node/app
+COPY package*.json ./
 
-ENV PORT $PORT
-EXPOSE $PORT
+RUN npm install
 
-COPY package*.json /home/node/app/
-RUN npm ci
+COPY . .
 
-COPY . /home/node/app/
+EXPOSE 3000
 
 CMD ["npm", "run", "start:dev"]
