@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useAuth } from '../contexto/AuthContext';
+import { criarPost } from '../servicos/api';
 
 const Container = styled.div`
   max-width: 600px;
@@ -42,14 +44,35 @@ const Button = styled.button`
   }
 `;
 
+const ErrorMessage = styled.p`
+  color: red;
+  margin-top: 10px;
+`;
+
+const SuccessMessage = styled.p`
+  color: green;
+  margin-top: 10px;
+`;
+
 const PaginaCriarPost = () => {
   const [titulo, setTitulo] = useState('');
   const [conteudo, setConteudo] = useState('');
-  const [autor, setAutor] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const { token } = useAuth(); // Utilizando o token do AuthContext
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Criando post:', { titulo, conteudo, autor }); 
+    const post = await criarPost(token, titulo, conteudo);
+    if (post) {
+      setSuccess('Post criado com sucesso!');
+      setError('');
+      setTitulo('');
+      setConteudo('');
+    } else {
+      setError('Erro ao criar o post');
+      setSuccess('');
+    }
   };
 
   return (
@@ -62,12 +85,6 @@ const PaginaCriarPost = () => {
           value={titulo} 
           onChange={(e) => setTitulo(e.target.value)} 
         />
-        <Input 
-          type="text" 
-          placeholder="Autor" 
-          value={autor} 
-          onChange={(e) => setAutor(e.target.value)} 
-        />
         <Textarea 
           rows="8" 
           placeholder="Conteúdo" 
@@ -76,6 +93,8 @@ const PaginaCriarPost = () => {
         />
         <Button type="submit">Criar Post</Button>
       </form>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+      {success && <SuccessMessage>{success}</SuccessMessage>}
     </Container>
   );
 };

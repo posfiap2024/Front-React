@@ -18,23 +18,28 @@ export const obterPosts = async () => {
   }
 };
 
-export const criarPost = async (post) => {
+export const criarPost = async (token, title, content) => {
   try {
-    console.log(post);
+    console.log('Criando post... ', title);
     const response = await fetch(`${BASE_URL}/posts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(post),
+      body: JSON.stringify({ title, content })
     });
+
     if (!response.ok) {
-      throw new Error('Falha ao criar post');
+      throw new Error('Erro ao criar o post');
     }
-    return await response.json();
+
+    const data = await response.json();
+    console.log('Post criado com sucesso!', data);
+    return data;
   } catch (error) {
-    console.error('Erro ao criar post:', error);
-    throw error;
+    console.log(error);
+    return null;
   }
 };
 
