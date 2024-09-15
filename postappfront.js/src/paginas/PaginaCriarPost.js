@@ -63,6 +63,13 @@ const PaginaCriarPost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!titulo || !conteudo) {
+      setError('Todos os campos são obrigatórios');
+      setSuccess('');
+      return;
+    }
+
     const post = await criarPost(token, titulo, conteudo);
     if (post) {
       setSuccess('Post criado com sucesso!');
