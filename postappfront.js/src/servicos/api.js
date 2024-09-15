@@ -1,4 +1,5 @@
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+const BASE_URL = 'http://localhost:3001';
+// const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export const obterPosts = async () => {
   try {
@@ -19,6 +20,7 @@ export const obterPosts = async () => {
 
 export const criarPost = async (post) => {
   try {
+    console.log(post);
     const response = await fetch(`${BASE_URL}/posts`, {
       method: 'POST',
       headers: {
@@ -80,6 +82,30 @@ export const obterPostPorId = async (id) => {
   } catch (error) {
     console.error('Erro ao obter post:', error);
     throw error;
+  }
+};
+
+export const logarUsuario = async (username, password) => {
+  try {
+    console.log('Fazendo login... ', username);
+    const response = await fetch(`${BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro na requisição de login');
+    }
+
+    const data = await response.json();
+    console.log('Login efetuado com sucesso!', data);
+    return data.token;
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 };
 
