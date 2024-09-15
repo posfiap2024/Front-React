@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexto/AuthContext';
 import { criarPost } from '../servicos/api';
+import { useNavigate } from 'react-router-dom'; 
 
 const Container = styled.div`
   max-width: 600px;
@@ -49,16 +50,13 @@ const ErrorMessage = styled.p`
   margin-top: 10px;
 `;
 
-const SuccessMessage = styled.p`
-  color: green;
-  margin-top: 10px;
-`;
-
 const PaginaCriarPost = () => {
   const [titulo, setTitulo] = useState('');
   const [conteudo, setConteudo] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+
+  const navigate = useNavigate();
+
   const { token } = useAuth(); // Utilizando o token do AuthContext
 
   const handleSubmit = async (e) => {
@@ -66,19 +64,18 @@ const PaginaCriarPost = () => {
     
     if (!titulo || !conteudo) {
       setError('Todos os campos são obrigatórios');
-      setSuccess('');
       return;
     }
 
     const post = await criarPost(token, titulo, conteudo);
     if (post) {
-      setSuccess('Post criado com sucesso!');
       setError('');
       setTitulo('');
       setConteudo('');
+      
+      navigate('/admin');
     } else {
       setError('Erro ao criar o post');
-      setSuccess('');
     }
   };
 
@@ -101,7 +98,6 @@ const PaginaCriarPost = () => {
         <Button type="submit">Criar Post</Button>
       </form>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {success && <SuccessMessage>{success}</SuccessMessage>}
     </Container>
   );
 };

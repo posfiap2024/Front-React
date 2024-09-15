@@ -18,6 +18,27 @@ export const obterPosts = async () => {
   }
 };
 
+export const obterPostsAdmin = async (token) => {
+  try {
+    const response = await fetch(`${BASE_URL}/posts/admin`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    const data = await response.json()
+
+    return data.map(post => ({
+      id: post.id,
+      autor: '',
+      titulo: post.title,
+      descricao: post.content
+    }))
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+};
+
 export const criarPost = async (token, title, content) => {
   try {
     console.log('Criando post... ', title);
