@@ -178,7 +178,7 @@ const PaginaPrincipal = () => {
               <PostTitle>{post.titulo}</PostTitle>
               <PostAuthor>Autor: {post.autor}</PostAuthor>
               <PostDescription>{post.descricao}</PostDescription>
-              <ReadMoreLink to={`/post/${post.id}`}>Leia mais</ReadMoreLink>
+              <ReadMoreLink to={`/posts/${post.id}`}>Leia mais</ReadMoreLink>
             </PostItem>
           ))
         ) : (
