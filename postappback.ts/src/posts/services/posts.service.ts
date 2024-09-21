@@ -3,6 +3,7 @@ import { IPost } from '../entities/post.interface';
 import { Like, Repository } from 'typeorm';
 import { Post } from '../entities/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class PostsService {
@@ -20,6 +21,14 @@ export class PostsService {
       ],
       skip: (page - 1) * limit,
       take: limit,
+      relations: {
+        user: true
+      },
+      select: {
+        user: {
+          username: true
+        }
+      }
     });
   }
 
@@ -28,6 +37,14 @@ export class PostsService {
       where: { status: 'published' },
       skip: (page - 1) * limit,
       take: limit,
+      relations: {
+        user: true
+      },
+      select: {
+        user: {
+          username: true,
+        }
+      }
     });
   }
 
@@ -35,6 +52,14 @@ export class PostsService {
     return this.repository.find({
       skip: (page - 1) * limit,
       take: limit,
+      relations: {
+        user: true
+      },
+      select: {
+        user: {
+          username: true
+        }
+      }
     });
   }
 
