@@ -1,5 +1,5 @@
-const BASE_URL = 'http://localhost:3001';
-// const BASE_URL = process.env.REACT_APP_BASE_URL;
+// const BASE_URL = 'http://localhost:3001';
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export const obterPosts = async () => {
   try {
@@ -36,6 +36,24 @@ export const obterPostsAdmin = async (token) => {
   } catch (error) {
     console.log(error)
     return []
+  }
+};
+
+export const searchPost = async (query) => {
+  try {
+    const response = await fetch(`${BASE_URL}/posts/search?q=${query}`);
+    const data = await response.json();
+
+    console.log('Posts encontrados: ', data);
+    return data.map(post => ({
+      id: post.id,
+      autor: post.author || '',
+      titulo: post.title,
+      descricao: post.content
+    }));
+  } catch (error) {
+    console.log(error);
+    return [];
   }
 };
 
