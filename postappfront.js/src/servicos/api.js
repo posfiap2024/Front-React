@@ -29,7 +29,7 @@ export const obterPostsAdmin = async (token) => {
 
     return data.map(post => ({
       id: post.id,
-      autor: '',
+      autor: post.user.username,
       titulo: post.title,
       descricao: post.content
     }))
