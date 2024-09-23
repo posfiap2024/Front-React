@@ -39,6 +39,24 @@ export const obterPostsAdmin = async (token) => {
   }
 };
 
+export const searchPost = async (query) => {
+  try {
+    const response = await fetch(`${BASE_URL}/posts/search?q=${query}`);
+    const data = await response.json();
+
+    console.log('Posts encontrados: ', data);
+    return data.map(post => ({
+      id: post.id,
+      autor: post.author || '',
+      titulo: post.title,
+      descricao: post.content
+    }));
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
 export const criarPost = async (token, title, content) => {
   try {
     console.log('Criando post... ', title);
@@ -83,14 +101,18 @@ export const atualizarPost = async (id, post) => {
   }
 };
 
-export const excluirPost = async (id) => {
+export const excluirPost = async (id, token) => {
   try {
     const response = await fetch(`${BASE_URL}/posts/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
     if (!response.ok) {
       throw new Error('Falha ao excluir post');
     }
+    console.log('Post excluído com sucesso!');
     return true;
   } catch (error) {
     console.error('Erro ao excluir post:', error);
