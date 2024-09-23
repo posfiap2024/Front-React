@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './componentes/Navbar';
 import PaginaPrincipal from './paginas/PaginaPrincipal';
+import PaginaDetalhe from './paginas/PaginaDetalhe';
 import PaginaPost from './paginas/PaginaPost';
 import PaginaCriarPost from './paginas/PaginaCriarPost';
 import PaginaEditarPost from './paginas/PaginaEditarPost';
@@ -29,6 +30,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<PaginaPrincipal />} />
             <Route path="/post/:id" element={<PaginaPost />} />
+            <Route path="/posts/:id" element={<PaginaDetalhe />} />
             <Route path="/criar-post" element={<PaginaCriarPost />} />
             <Route path="/editar-post/:id" element={<PaginaEditarPost />} />
             <Route path="/admin" element={<PaginaAdmin />} />
