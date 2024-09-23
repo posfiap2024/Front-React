@@ -157,5 +157,15 @@ export const logarUsuario = async (username, password) => {
   }
 };
 
-
-
+export const obterUsuario = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/auth/user`);
+    if (!response.ok) {
+      throw new Error('Falha ao obter usuário');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao obter usuário:', error);
+    throw error;
+  }
+};
