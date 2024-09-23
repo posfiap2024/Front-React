@@ -1,14 +1,19 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   UnauthorizedException,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
 import { SignInDto, SignInSchema } from './dto/sign-in.dto';
 import { ZodValidationPipe } from '../shared/pipe/zod-validation.pipe';
 import { JwtService } from '@nestjs/jwt';
+import { AuthGuard } from './guards/auth.guard';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { IUser } from 'src/users/entities/user.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -32,5 +37,13 @@ export class AuthController {
     return {
       token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('user')
+  async user(@CurrentUser() user: IUser) {
+    const currentUser = { ...user };
+    delete currentUser.password;
+    return currentUser;
   }
 }
