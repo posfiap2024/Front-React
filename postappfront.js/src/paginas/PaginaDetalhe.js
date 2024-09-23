@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { obterPostPorId } from '../servicos/api';
 
 const PaginaDetalhe = () => {
   const { id } = useParams();
@@ -9,8 +10,7 @@ const PaginaDetalhe = () => {
   useEffect(() => {
     const fetchPostDetalhe = async () => {
       try {
-        const resposta = await fetch(`http://localhost:3001/posts/${id}`);
-        const resultado = await resposta.json();
+        const resultado = await obterPostPorId(id);
         setPost(resultado);
         setLoading(false);
       } catch (error) {
