@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { obterPosts } from '../servicos/api';
+import { obterPosts, obterPostsAdmin } from '../servicos/api';
 import ModalConfirmacao from '../componentes/ModalConfirmacao';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexto/AuthContext';
 
 const AdminContainer = styled.div`
   padding: 40px;
@@ -55,9 +56,11 @@ const PaginaAdmin = () => {
   const [postIdParaExcluir, setPostIdParaExcluir] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
 
+  const { token } = useAuth(); // Utilizando o token do AuthContext
+
   useEffect(() => {
     const carregarPosts = async () => {
-      const postsCarregados = await obterPosts();
+      const postsCarregados = await obterPostsAdmin(token);
       setPosts(postsCarregados);
     };
     carregarPosts();

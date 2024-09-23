@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom'; 
+import { useAuth } from '../contexto/AuthContext';
 
 const LoginContainer = styled.div`
   max-width: 400px;
@@ -39,47 +40,44 @@ const ErrorMessage = styled.p`
 `;
 
 const PaginaLogin = () => {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState('');
-  const navigate = useNavigate(); 
-
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login } = useAuth();
   
-    if (email === 'fullstack@fiap.com' && senha === 'fullstack') {
-      setErro('');
-      localStorage.setItem('usuarioLogado', 'true'); 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const token = await login(username, password);
+    if (token) {
+      setError('');
       navigate('/admin');
     } else {
-      setErro('Email ou senha inválidos');
+      setError('Username ou senha inválidos');
     }
   };
-  
 
   return (
     <LoginContainer>
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <Input
           type="password"
           placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <Button type="submit">Entrar</Button>
-        {erro && <ErrorMessage>{erro}</ErrorMessage>}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </form>
     </LoginContainer>
   );
 };
-
-
 
 export default PaginaLogin;
