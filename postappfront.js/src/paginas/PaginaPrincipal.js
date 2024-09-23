@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { obterPosts } from '../servicos/api';
+import { obterPosts, searchPost } from '../servicos/api';
 
 const MainContainer = styled.div`
   max-width: 1200px;
@@ -136,21 +136,28 @@ const PaginaPrincipal = () => {
     fetchPosts();
   }, []);
 
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      try {
+        const resultado = searchQuery ? await searchPost(searchQuery) : await obterPosts();
+        setPosts(resultado);
+      } catch (error) {
+        console.error('Erro ao buscar posts:', error);
+      }
+    };
+
+    fetchSearchResults();
+  }, [searchQuery]);
+
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value.toLowerCase());
     setCurrentPage(1);
   };
 
-  const filteredPosts = posts.filter(post =>
-    post.titulo.toLowerCase().includes(searchQuery) ||
-    post.autor.toLowerCase().includes(searchQuery) ||
-    post.descricao.toLowerCase().includes(searchQuery)
-  );
-
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(posts.length / postsPerPage);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -178,7 +185,7 @@ const PaginaPrincipal = () => {
               <PostTitle>{post.titulo}</PostTitle>
               <PostAuthor>Autor: {post.autor}</PostAuthor>
               <PostDescription>{post.descricao}</PostDescription>
-              <ReadMoreLink to={`/post/${post.id}`}>Leia mais</ReadMoreLink>
+              <ReadMoreLink to={`/posts/${post.id}`}>Leia mais</ReadMoreLink>
             </PostItem>
           ))
         ) : (
@@ -186,7 +193,7 @@ const PaginaPrincipal = () => {
         )}
       </PostGrid>
 
-      {filteredPosts.length > postsPerPage && (
+      {posts.length > postsPerPage && (
         <Pagination>
           <PaginationButton onClick={handlePreviousPage} disabled={currentPage === 1}>
             Anterior
