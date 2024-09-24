@@ -1,35 +1,41 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { logarUsuario } from '../servicos/api';
+import { logarUsuario, obterUsuario } from '../servicos/api';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(localStorage.getItem('user') || null);
 
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
-      // TODO Aqui você pode adicionar lógica para decodificar o token e obter informações do usuário
-      // setUser(decodedUser);
     } else {
       localStorage.removeItem('token');
-      setUser(null);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', user);
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [user]);
 
   const login = async (username, password) => {
     const token = await logarUsuario(username, password);
     if (token) {
+      const decodedUser = await obterUsuario(token);
       setToken(token);
-      // TODO Aqui você pode adicionar lógica para decodificar o token e obter informações do usuário
-      // setUser(decodedUser);
+      setUser(decodedUser);
     }
     return token;
   };
 
   const logout = () => {
     setToken(null);
+    setUser(null);
   };
 
   return (

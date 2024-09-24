@@ -1,5 +1,5 @@
-// const BASE_URL = 'http://localhost:3001';
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+const BASE_URL = 'http://localhost:3001';
+// const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export const obterPosts = async () => {
   try {
@@ -157,13 +157,22 @@ export const logarUsuario = async (username, password) => {
   }
 };
 
-export const obterUsuario = async () => {
+export const obterUsuario = async (token) => {
   try {
-    const response = await fetch(`${BASE_URL}/auth/user`);
+    const response = await fetch(`${BASE_URL}/auth/user`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    });
+    const data = await response.json();
+
+
     if (!response.ok) {
       throw new Error('Falha ao obter usuário');
     }
-    return await response.json();
+    console.log('Usuário obtido: ', data);
+    return data;
   } catch (error) {
     console.error('Erro ao obter usuário:', error);
     throw error;
