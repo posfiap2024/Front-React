@@ -18,6 +18,7 @@ const Input = styled.input`
   margin-bottom: 20px;
   border-radius: 5px;
   border: 1px solid #ddd;
+  box-sizing: border-box;
 `;
 
 const Button = styled.button`
@@ -28,6 +29,7 @@ const Button = styled.button`
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  box-sizing: border-box;
 
   &:hover {
     background-color: #2980b9;
