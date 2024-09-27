@@ -21,7 +21,7 @@ const Footer = () => {
   return (
     <FooterContainer>
       <SocialLinks>
-        <a href="https://github.com" style={{ color: 'white' }}>GitHub</a>
+        <a href="https://github.com/posfiap2024/Front-React" style={{ color: 'white' }}>GitHub</a>
       </SocialLinks>
       <FooterText>© 2024 Blog Posts. Todos os direitos reservados.</FooterText>
     </FooterContainer>
