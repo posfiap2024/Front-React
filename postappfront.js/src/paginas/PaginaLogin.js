@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom'; 
 import { useAuth } from '../contexto/AuthContext';
@@ -18,6 +18,7 @@ const Input = styled.input`
   margin-bottom: 20px;
   border-radius: 5px;
   border: 1px solid #ddd;
+  box-sizing: border-box;
 `;
 
 const Button = styled.button`
@@ -28,6 +29,7 @@ const Button = styled.button`
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  box-sizing: border-box;
 
   &:hover {
     background-color: #2980b9;
@@ -44,15 +46,22 @@ const PaginaLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
-  
+  const { login, user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin' || user.role === 'professor') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [user, navigate]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     const token = await login(username, password);
-    if (token) {
-      setError('');
-      navigate('/admin');
-    } else {
+    if (!token) {
       setError('Username ou senha inválidos');
     }
   };
