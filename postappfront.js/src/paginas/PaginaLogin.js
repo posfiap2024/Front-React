@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom'; 
+import { useAuth } from '../contexto/AuthContext';
 
 const LoginContainer = styled.div`
   max-width: 400px;
@@ -17,6 +18,7 @@ const Input = styled.input`
   margin-bottom: 20px;
   border-radius: 5px;
   border: 1px solid #ddd;
+  box-sizing: border-box;
 `;
 
 const Button = styled.button`
@@ -27,6 +29,7 @@ const Button = styled.button`
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  box-sizing: border-box;
 
   &:hover {
     background-color: #2980b9;
@@ -39,47 +42,51 @@ const ErrorMessage = styled.p`
 `;
 
 const PaginaLogin = () => {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState('');
-  const navigate = useNavigate(); 
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login, user } = useAuth();
 
-  const handleLogin = (e) => {
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin' || user.role === 'professor') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [user, navigate]);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-  
-    if (email === 'fullstack@fiap.com' && senha === 'fullstack') {
-      setErro('');
-      localStorage.setItem('usuarioLogado', 'true'); 
-      navigate('/admin');
-    } else {
-      setErro('Email ou senha inválidos');
+    const token = await login(username, password);
+    if (!token) {
+      setError('Username ou senha inválidos');
     }
   };
-  
 
   return (
     <LoginContainer>
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <Input
           type="password"
           placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <Button type="submit">Entrar</Button>
-        {erro && <ErrorMessage>{erro}</ErrorMessage>}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </form>
     </LoginContainer>
   );
 };
-
-
 
 export default PaginaLogin;

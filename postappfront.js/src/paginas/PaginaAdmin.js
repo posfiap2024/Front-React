@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { obterPosts } from '../servicos/api';
+import { excluirPost, obterPosts, obterPostsAdmin } from '../servicos/api';
 import ModalConfirmacao from '../componentes/ModalConfirmacao';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexto/AuthContext';
 
 const AdminContainer = styled.div`
   padding: 40px;
@@ -33,6 +34,7 @@ const Button = styled.button`
   background-color: #dc3545;
   color: white;
   padding: 12px;
+  width: 70px;
   border-radius: 8px;
   cursor: pointer;
   &:hover {
@@ -44,33 +46,73 @@ const EditButton = styled(Button)`
   background-color: #007bff;
   padding: 12px;
   border-radius: 8px;
+  width: 70px;
   &:hover {
     background-color: #0056b3;
   }
   margin-bottom: 10px;
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+`;
+
+const AlertCard = styled.div`
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: opacity 0.5s ease-in-out;
+  opacity: ${(props) => (props.show ? 1 : 0)};
+`;
+
 const PaginaAdmin = () => {
   const [posts, setPosts] = useState([]);
   const [postIdParaExcluir, setPostIdParaExcluir] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarAlerta, setMostrarAlerta] = useState(false);
+
+  const { token } = useAuth(); // Utilizando o token do AuthContext
 
   useEffect(() => {
     const carregarPosts = async () => {
-      const postsCarregados = await obterPosts();
+      const postsCarregados = await obterPostsAdmin(token);
       setPosts(postsCarregados);
     };
     carregarPosts();
-  }, []);
+  }, [token]);
 
   const handleDeletePost = (id) => {
     setPostIdParaExcluir(id);
     setMostrarModal(true);
   };
 
+  const handleConfirmDelete = async () => {
+    const postExcluido = await excluirPost(postIdParaExcluir, token);
+    if (postExcluido) {
+      const postsAtualizados = posts.filter((post) => post.id !== postIdParaExcluir);
+      setPosts(postsAtualizados);
+      setMostrarModal(false);
+      setMostrarAlerta(true);
+      setTimeout(() => {
+        setMostrarAlerta(false);
+      }, 3000);
+    }
+    setMostrarModal(false);
+  };
+
   return (
     <AdminContainer>
       <h1>Painel de Administração</h1>
+      {mostrarAlerta && <AlertCard show={mostrarAlerta}>Post excluído com sucesso!</AlertCard>}
       <PostList>
         {posts.map((post) => (
           <PostItem key={post.id}>
@@ -78,20 +120,20 @@ const PaginaAdmin = () => {
               <h3>{post.titulo}</h3>
               <p>{post.descricao}</p>
             </div>
-            <div>
+            <ButtonContainer>
               <Link to={`/editar-post/${post.id}`}>
-                <EditButton>Editar </EditButton>
+                <EditButton>Editar</EditButton>
               </Link>
               <Button onClick={() => handleDeletePost(post.id)}>Excluir</Button>
-            </div>
+            </ButtonContainer>
           </PostItem>
         ))}
       </PostList>
       {mostrarModal && (
         <ModalConfirmacao 
-          postId={postIdParaExcluir}
-          onClose={() => setMostrarModal(false)}
-          onConfirm={() => console.log('Excluído')}
+          showModal={mostrarModal}
+          setShowModal={setMostrarModal}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </AdminContainer>

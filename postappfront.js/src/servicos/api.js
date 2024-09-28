@@ -1,49 +1,84 @@
-const BASE_URL = ''; 
-
-//export const obterPosts = async () => {
-//  try {
-//    const response = await fetch(`${BASE_URL}/posts`);
-//    if (!response.ok) {
-//      throw new Error('Falha ao obter posts');
-//    }
-//    return await response.json();
-//  } catch (error) {
-//    console.error('Erro ao obter posts:', error);
-//    throw error;
-//  }
-//};
+// const BASE_URL = 'http://localhost:3001';
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export const obterPosts = async () => {
-  // dados mockados para testes até integrar serviço
-  return [
-    { id: 1, titulo: "Post 1", autor: "Kevin James", descricao: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged." },
-    { id: 2, titulo: "Post 2", autor: "Rogerio Anderson", descricao: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged."  },
-    { id: 3, titulo: "Post 3", autor: "Hugo Souza", descricao: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged."  },
-    { id: 4, titulo: "Post 4", autor: "José Fernandez", descricao: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged." },
-    { id: 5, titulo: "Post 5", autor: "João da Silva", descricao: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged."  },
-    { id: 6, titulo: "Post 6", autor: "Armando Rodrigues", descricao: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged."  },
-    { id: 7, titulo: "Post 7", autor: "Juscelino Souza", descricao: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged." },
-    { id: 8, titulo: "Post 8", autor: "Maria dos Santos", descricao: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged."  },
-    { id: 9, titulo: "Post 9", autor: "João da Silva", descricao: "testando buscador"  },
-  ];
+  try {
+    const response = await fetch(`${BASE_URL}/posts`)
+    const data = await response.json()
+
+    return data.map(post => ({
+      id: post.id,
+      autor: post.user.username,
+      titulo: post.title,
+      descricao: post.content
+    }))
+  } catch (error) {
+    console.log(error)
+    return []
+  }
 };
 
-export const criarPost = async (post) => {
+export const obterPostsAdmin = async (token) => {
   try {
+    const response = await fetch(`${BASE_URL}/posts/admin`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    const data = await response.json()
+
+    return data.map(post => ({
+      id: post.id,
+      autor: post.user.username,
+      titulo: post.title,
+      descricao: post.content
+    }))
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+};
+
+export const searchPost = async (query) => {
+  try {
+    const response = await fetch(`${BASE_URL}/posts/search?q=${query}`);
+    const data = await response.json();
+
+    console.log('Posts encontrados: ', data);
+    return data.map(post => ({
+      id: post.id,
+      autor: post.author || '',
+      titulo: post.title,
+      descricao: post.content
+    }));
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+export const criarPost = async (token, title, content) => {
+  try {
+    console.log('Criando post... ', title);
     const response = await fetch(`${BASE_URL}/posts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(post),
+      body: JSON.stringify({ title, content })
     });
+
     if (!response.ok) {
-      throw new Error('Falha ao criar post');
+      throw new Error('Erro ao criar o post');
     }
-    return await response.json();
+
+    const data = await response.json();
+    console.log('Post criado com sucesso!', data);
+    return data;
   } catch (error) {
-    console.error('Erro ao criar post:', error);
-    throw error;
+    console.log(error);
+    return null;
   }
 };
 
@@ -66,14 +101,18 @@ export const atualizarPost = async (id, post) => {
   }
 };
 
-export const excluirPost = async (id) => {
+export const excluirPost = async (id, token) => {
   try {
     const response = await fetch(`${BASE_URL}/posts/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
     if (!response.ok) {
       throw new Error('Falha ao excluir post');
     }
+    console.log('Post excluído com sucesso!');
     return true;
   } catch (error) {
     console.error('Erro ao excluir post:', error);
@@ -94,5 +133,48 @@ export const obterPostPorId = async (id) => {
   }
 };
 
+export const logarUsuario = async (username, password) => {
+  try {
+    console.log('Fazendo login... ', username);
+    const response = await fetch(`${BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro na requisição de login');
+    }
+
+    const data = await response.json();
+    console.log('Login efetuado com sucesso!', data);
+    return data.token;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+export const obterUsuario = async (token) => {
+  try {
+    const response = await fetch(`${BASE_URL}/auth/user`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    });
+    const data = await response.json();
 
 
+    if (!response.ok) {
+      throw new Error('Falha ao obter usuário');
+    }
+    console.log('Usuário obtido: ', data);
+    return data;
+  } catch (error) {
+    console.error('Erro ao obter usuário:', error);
+    throw error;
+  }
+};
