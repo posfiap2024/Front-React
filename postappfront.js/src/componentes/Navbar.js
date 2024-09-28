@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { useAuth } from '../contexto/AuthContext';
 
 const NavbarContainer = styled.nav`
   background-color: #2c3e50;
@@ -99,6 +100,7 @@ const Bar = styled.div`
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -113,9 +115,17 @@ const Navbar = () => {
         <Bar isOpen={isOpen} />
       </Hamburger>
       <NavbarLinks isOpen={isOpen}>
-        <NavbarLink to="/admin">Admin</NavbarLink>
-        <NavbarLink to="/criar-post">Criar Post</NavbarLink>
-        <NavbarLink to="/login">Login</NavbarLink>
+        {user && (user.role === 'admin' || user.role === 'professor') ? (
+          <>
+            <NavbarLink to="/admin">Admin</NavbarLink>
+            <NavbarLink to="/criar-post">Criar Post</NavbarLink>
+          </>
+        ) : <></>}
+        {user ? (
+          <NavbarLink to="/" onClick={logout}>Sair</NavbarLink>
+        ) : (
+          <NavbarLink to="/login">Login</NavbarLink>
+        )}
       </NavbarLinks>
     </NavbarContainer>
   );
