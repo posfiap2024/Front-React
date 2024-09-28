@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useFetch } from "./fetch";
+import { useAuth } from '../contexto/AuthContext';
 
 export function usePost(id) {
   const fetch = useFetch();
+  const { token } = useAuth();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 

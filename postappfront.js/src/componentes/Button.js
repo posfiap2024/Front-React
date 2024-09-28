@@ -20,4 +20,11 @@ export const DangerButton = styled(Button)`
   &:hover {
     background-color: #c0392b;
   }
+`;  
+
+ export const PublishButton = styled(Button)`
+  background-color: ${(props) => (props.disabled ? '#6c757d' : '#28a745')};
+  &:hover {
+    background-color: ${(props) => (props.disabled ? '#6c757d' : '#218838')}; 
+  }
 `;

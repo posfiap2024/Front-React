@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { excluirPost, obterPostsAdmin } from '../servicos/api';
+import { excluirPost, obterPostsAdmin, criarPost } from '../servicos/api';
 import ModalConfirmacao from '../componentes/ModalConfirmacao';
 import { Container } from '../componentes/Container';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate  } from 'react-router-dom';
 import { useAuth } from '../contexto/AuthContext';
-import { Button, DangerButton } from '../componentes/Button'
+import { Button, DangerButton, PublishButton } from '../componentes/Button'
 
 const PostList = styled.div`
   display: flex;
@@ -58,6 +58,7 @@ const PaginaAdmin = () => {
   const [mostrarAlerta, setMostrarAlerta] = useState(false);
 
   const { token } = useAuth(); // Utilizando o token do AuthContext
+  const navigate = useNavigate();
 
   useEffect(() => {
     const carregarPosts = async () => {
@@ -73,7 +74,7 @@ const PaginaAdmin = () => {
   };
 
   const handleConfirmDelete = async () => {
-    const postExcluido = await excluirPost(postIdParaExcluir, token);
+    const postExcluido = await excluirPost(postIdParaExcluir, token, true);
     if (postExcluido) {
       const postsAtualizados = posts.filter((post) => post.id !== postIdParaExcluir);
       setPosts(postsAtualizados);
@@ -85,6 +86,50 @@ const PaginaAdmin = () => {
     }
     setMostrarModal(false);
   };
+  
+
+  const handleAtualizaDirecionandoPost = async (postId) => {
+    const postPublicar = await excluirPost(postId, token, false);
+    if (postPublicar) {
+      const postsAtualizados = posts.filter((post) => post.id !== postId);
+      setPosts(postsAtualizados);
+      setMostrarAlerta(true);
+      setTimeout(() => {
+        setMostrarAlerta(false);
+      }, 3000);
+    }
+  };
+  
+
+
+  const [loading, setLoading] = useState(false);
+
+  const handlePublishPost = async (postId) => {
+    setLoading(true);
+    const postToPublish = posts.find((post) => post.id === postId);
+    if (!postToPublish) {
+      console.error('Post não encontrado');
+      setLoading(false);
+      return;
+    }
+
+    try {
+
+      const atualizaPost = await criarPost(token, postToPublish.titulo, postToPublish.descricao, 'published');
+
+      if (atualizaPost) {
+        await handleAtualizaDirecionandoPost(postId);
+        navigate('/');
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId).concat(atualizaPost));
+        console.log('Post publicado com sucesso!', atualizaPost);
+      }
+    } catch (error) {
+      console.error('Erro ao publicar o post:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <Container $maxWidth="1000px">
@@ -105,6 +150,9 @@ const PaginaAdmin = () => {
               <DangerButton onClick={() => handleDeletePost(post.id)}>
                 Excluir
               </DangerButton>
+              <PublishButton onClick={() => handlePublishPost(post.id)} disabled={loading || post.status === 'published'}>
+                {loading ? 'Publicando...' : post.status === 'published' ? 'Publicado' : 'Publicar'}
+              </PublishButton>
             </ButtonContainer>
           </PostItem>
         ))}
