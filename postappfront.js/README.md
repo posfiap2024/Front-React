@@ -4,7 +4,7 @@
 Este projeto é o complemento frontend da API de gerenciamento de postagens, desenvolvido utilizando React.js, com integração à API de backend que gerencia postagens e usuários.  O foco desta documentação é tratar do projeto de frontend da aplicação apenas. 
 Para mais detalhes sobre o projeto de backend [clique aqui](https://github.com/posfiap2024/postappback.ts).
 
-Link de demonstração de uso do projeto: https://www.link.do.video
+Link de demonstração de uso do projeto: [https://www.link.do.video](https://1drv.ms/v/c/a92349b78d645080/EfXTkZ-xjgdJsnh_FhqmkHwB68HV6c-0wtjYt_FYy-0YTA?e=T84zcb)
 
 O projeto de frontend está estruturado da seguinte forma:
 
