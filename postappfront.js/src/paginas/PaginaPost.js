@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { obterPostPorId } from '../servicos/api';
+import { usePost } from '../hooks/post';
 
 const PostContainer = styled.div`
   max-width: 800px;
@@ -24,40 +24,18 @@ const PostContent = styled.div`
 
 const PaginaPost = () => {
   const { id } = useParams();
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        setLoading(true);
-        const resultado = await obterPostPorId(id);
-        setPost(resultado);
-      } catch (error) {
-        setError('Aguardando post do backend...');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPost();
-  }, [id]);
+  const { post, loading } = usePost(id);
 
   if (loading) {
     return <p>Carregando post...</p>;
-  }
-
-  if (error) {
-    return <p>{error}</p>;
   }
 
   return (
     <PostContainer>
       {post ? (
         <>
-          <PostTitle>{post.titulo}</PostTitle>
-          <PostContent>{post.conteudo}</PostContent>
+          <PostTitle>{post.title}</PostTitle>
+          <PostContent>{post.content}</PostContent>
         </>
       ) : (
         <p>Post não encontrado.</p>

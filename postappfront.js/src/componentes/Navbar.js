@@ -12,8 +12,7 @@ const NavbarContainer = styled.nav`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 1000;
-  border-radius: 5px;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
@@ -25,7 +24,7 @@ const NavbarLogo = styled(Link)`
   font-size: 24px;
   font-weight: bold;
   text-decoration: none;
-  
+
   &:hover {
     color: #ecf0f1;
   }
@@ -54,7 +53,7 @@ const NavbarLink = styled(Link)`
   color: white;
   text-decoration: none;
   font-size: 18px;
-  
+
   &:hover {
     color: #ecf0f1;
     text-decoration: underline;

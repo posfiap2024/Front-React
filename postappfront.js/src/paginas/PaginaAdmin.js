@@ -2,22 +2,15 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { excluirPost, obterPostsAdmin, criarPost } from '../servicos/api';
 import ModalConfirmacao from '../componentes/ModalConfirmacao';
-import { Link, useNavigate } from 'react-router-dom';
+import { Container } from '../componentes/Container';
+import { Link, useNavigate  } from 'react-router-dom';
 import { useAuth } from '../contexto/AuthContext';
-
-const AdminContainer = styled.div`
-  padding: 40px;
-  max-width: 1000px;
-  margin: 0 auto;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-`;
+import { Button, DangerButton, PublishButton } from '../componentes/Button'
 
 const PostList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.5rem;
 `;
 
 const PostItem = styled.div`
@@ -26,41 +19,21 @@ const PostItem = styled.div`
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
+  flex-direction: column;
+  gap: 1rem;
 
-const Button = styled.button`
-  background-color: #dc3545;
-  color: white;
-  padding: 12px;
-  width: 90px; 
-  border-radius: 8px;
-  cursor: pointer;
-  &:hover {
-    background-color: #c82333;
-  }
-  margin-bottom: 10px;  
-`;
-
-const PublishButton = styled(Button)`
-  background-color: ${(props) => (props.disabled ? '#6c757d' : '#28a745')};
-  &:hover {
-    background-color: ${(props) => (props.disabled ? '#6c757d' : '#218838')}; 
-  }
-`;
-
-const EditButton = styled(Button)`
-  background-color: #007bff;
-  &:hover {
-    background-color: #0056b3;
+  > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  margin-left: auto;
+  flex-direction: row;
+  gap: 0.625rem;
+  align-items: center;
 `;
 
 const AlertCard = styled.div`
@@ -101,7 +74,7 @@ const PaginaAdmin = () => {
   };
 
   const handleConfirmDelete = async () => {
-    const postExcluido = await excluirPost(postIdParaExcluir, token);
+    const postExcluido = await excluirPost(postIdParaExcluir, token, true);
     if (postExcluido) {
       const postsAtualizados = posts.filter((post) => post.id !== postIdParaExcluir);
       setPosts(postsAtualizados);
@@ -113,10 +86,11 @@ const PaginaAdmin = () => {
     }
     setMostrarModal(false);
   };
+  
 
   const handleAtualizaDirecionandoPost = async (postId) => {
-    const postExcluido = await excluirPost(postId, token);
-    if (postExcluido) {
+    const postPublicar = await excluirPost(postId, token, false);
+    if (postPublicar) {
       const postsAtualizados = posts.filter((post) => post.id !== postId);
       setPosts(postsAtualizados);
       setMostrarAlerta(true);
@@ -125,6 +99,7 @@ const PaginaAdmin = () => {
       }, 3000);
     }
   };
+  
 
 
   const [loading, setLoading] = useState(false);
@@ -157,7 +132,7 @@ const PaginaAdmin = () => {
 
 
   return (
-    <AdminContainer>
+    <Container $maxWidth="1000px">
       <h1>Painel de Administração</h1>
       {mostrarAlerta && <AlertCard show={mostrarAlerta}>Post excluído com sucesso!</AlertCard>}
       <PostList>
@@ -167,11 +142,14 @@ const PaginaAdmin = () => {
               <h3>{post.titulo}</h3>
               <p>{post.descricao}</p>
             </div>
+
             <ButtonContainer>
               <Link to={`/editar-post/${post.id}`}>
-                <EditButton>Editar</EditButton>
+                <Button>Editar</Button>
               </Link>
-              <Button onClick={() => handleDeletePost(post.id)}>Excluir</Button>
+              <DangerButton onClick={() => handleDeletePost(post.id)}>
+                Excluir
+              </DangerButton>
               <PublishButton onClick={() => handlePublishPost(post.id)} disabled={loading || post.status === 'published'}>
                 {loading ? 'Publicando...' : post.status === 'published' ? 'Publicado' : 'Publicar'}
               </PublishButton>
@@ -179,6 +157,7 @@ const PaginaAdmin = () => {
           </PostItem>
         ))}
       </PostList>
+
       {mostrarModal && (
         <ModalConfirmacao
           showModal={mostrarModal}
@@ -186,7 +165,7 @@ const PaginaAdmin = () => {
           onConfirm={handleConfirmDelete}
         />
       )}
-    </AdminContainer>
+    </Container>
   );
 };
 

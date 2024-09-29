@@ -1,12 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa';
 
 const FooterContainer = styled.footer`
   background-color: #2c3e50;
   color: white;
   text-align: center;
-  border-radius: 5px;
 `;
 
 const SocialLinks = styled.div`

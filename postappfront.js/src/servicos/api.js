@@ -102,7 +102,7 @@ export const atualizarPost = async (id, post) => {
   }
 };
 
-export const excluirPost = async (id, token) => {
+export const excluirPost = async (id, token, shouldLog = true) => {
   try {
     const response = await fetch(`${BASE_URL}/posts/${id}`, {
       method: 'DELETE',
@@ -110,16 +110,22 @@ export const excluirPost = async (id, token) => {
         'Authorization': `Bearer ${token}`
       }
     });
+    
     if (!response.ok) {
       throw new Error('Falha ao excluir post');
     }
-    console.log('Post excluído com sucesso!');
+
+    if (shouldLog) {
+      console.log('Post excluído com sucesso!');
+    }
+
     return true;
   } catch (error) {
     console.error('Erro ao excluir post:', error);
     throw error;
   }
 };
+
 
 export const obterPostPorId = async (id) => {
   try {
