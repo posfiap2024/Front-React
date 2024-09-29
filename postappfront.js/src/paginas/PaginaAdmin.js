@@ -1,23 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { excluirPost, obterPosts, obterPostsAdmin } from '../servicos/api';
+import { excluirPost, obterPostsAdmin, criarPost } from '../servicos/api';
 import ModalConfirmacao from '../componentes/ModalConfirmacao';
-import { Link } from 'react-router-dom';
+import { Container } from '../componentes/Container';
+import { Link, useNavigate  } from 'react-router-dom';
 import { useAuth } from '../contexto/AuthContext';
-
-const AdminContainer = styled.div`
-  padding: 40px;
-  max-width: 1000px;
-  margin: 0 auto;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-`;
+import { Button, DangerButton, PublishButton } from '../componentes/Button'
 
 const PostList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.5rem;
 `;
 
 const PostItem = styled.div`
@@ -26,37 +19,21 @@ const PostItem = styled.div`
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
+  flex-direction: column;
+  gap: 1rem;
 
-const Button = styled.button`
-  background-color: #dc3545;
-  color: white;
-  padding: 12px;
-  width: 70px;
-  border-radius: 8px;
-  cursor: pointer;
-  &:hover {
-    background-color: #c82333;
+  > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
-`;
-
-const EditButton = styled(Button)`
-  background-color: #007bff;
-  padding: 12px;
-  border-radius: 8px;
-  width: 70px;
-  &:hover {
-    background-color: #0056b3;
-  }
-  margin-bottom: 10px;
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  margin-left: auto;
+  flex-direction: row;
+  gap: 0.625rem;
+  align-items: center;
 `;
 
 const AlertCard = styled.div`
@@ -81,6 +58,7 @@ const PaginaAdmin = () => {
   const [mostrarAlerta, setMostrarAlerta] = useState(false);
 
   const { token } = useAuth(); // Utilizando o token do AuthContext
+  const navigate = useNavigate();
 
   useEffect(() => {
     const carregarPosts = async () => {
@@ -96,7 +74,7 @@ const PaginaAdmin = () => {
   };
 
   const handleConfirmDelete = async () => {
-    const postExcluido = await excluirPost(postIdParaExcluir, token);
+    const postExcluido = await excluirPost(postIdParaExcluir, token, true);
     if (postExcluido) {
       const postsAtualizados = posts.filter((post) => post.id !== postIdParaExcluir);
       setPosts(postsAtualizados);
@@ -108,9 +86,53 @@ const PaginaAdmin = () => {
     }
     setMostrarModal(false);
   };
+  
+
+  const handleAtualizaDirecionandoPost = async (postId) => {
+    const postPublicar = await excluirPost(postId, token, false);
+    if (postPublicar) {
+      const postsAtualizados = posts.filter((post) => post.id !== postId);
+      setPosts(postsAtualizados);
+      setMostrarAlerta(true);
+      setTimeout(() => {
+        setMostrarAlerta(false);
+      }, 3000);
+    }
+  };
+  
+
+
+  const [loading, setLoading] = useState(false);
+
+  const handlePublishPost = async (postId) => {
+    setLoading(true);
+    const postToPublish = posts.find((post) => post.id === postId);
+    if (!postToPublish) {
+      console.error('Post não encontrado');
+      setLoading(false);
+      return;
+    }
+
+    try {
+
+      const atualizaPost = await criarPost(token, postToPublish.titulo, postToPublish.descricao, 'published');
+
+      if (atualizaPost) {
+        await handleAtualizaDirecionandoPost(postId);
+        navigate('/');
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId).concat(atualizaPost));
+        console.log('Post publicado com sucesso!', atualizaPost);
+      }
+    } catch (error) {
+      console.error('Erro ao publicar o post:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
-    <AdminContainer>
+    <Container $maxWidth="1000px">
       <h1>Painel de Administração</h1>
       {mostrarAlerta && <AlertCard show={mostrarAlerta}>Post excluído com sucesso!</AlertCard>}
       <PostList>
@@ -120,23 +142,30 @@ const PaginaAdmin = () => {
               <h3>{post.titulo}</h3>
               <p>{post.descricao}</p>
             </div>
+
             <ButtonContainer>
               <Link to={`/editar-post/${post.id}`}>
-                <EditButton>Editar</EditButton>
+                <Button>Editar</Button>
               </Link>
-              <Button onClick={() => handleDeletePost(post.id)}>Excluir</Button>
+              <DangerButton onClick={() => handleDeletePost(post.id)}>
+                Excluir
+              </DangerButton>
+              <PublishButton onClick={() => handlePublishPost(post.id)} disabled={loading || post.status === 'published'}>
+                {loading ? 'Publicando...' : post.status === 'published' ? 'Publicado' : 'Publicar'}
+              </PublishButton>
             </ButtonContainer>
           </PostItem>
         ))}
       </PostList>
+
       {mostrarModal && (
-        <ModalConfirmacao 
+        <ModalConfirmacao
           showModal={mostrarModal}
           setShowModal={setMostrarModal}
           onConfirm={handleConfirmDelete}
         />
       )}
-    </AdminContainer>
+    </Container>
   );
 };
 
